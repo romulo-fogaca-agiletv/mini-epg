@@ -10,7 +10,7 @@ function list(userId) {
 function add(userId, channelId) {
   const current = list(userId);
   if (current.includes(channelId)) return { ok: true, favorites: current };
-  if (current.length > MAX_FAVORITES) {
+  if (current.length >= MAX_FAVORITES) {
     return { ok: false, error: 'Favorites limit reached (' + MAX_FAVORITES + ')' };
   }
   const updated = [...current, channelId];

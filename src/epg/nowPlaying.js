@@ -11,13 +11,13 @@ function saoPauloDate(now) {
 
 // What is on air on every channel at `now` (defaults to the current time).
 function nowPlaying(now = new Date()) {
-  const today = now.toISOString().slice(0, 10);
+  // No calendar-day filter: the time-range check alone is correct and also covers
+  // programmes that cross São Paulo midnight (a UTC-day filter broke 21h–24h local).
   const result = [];
   for (const channel of store.getChannels()) {
     const current = store
       .getProgrammes()
       .filter((p) => p.channelId === channel.id)
-      .filter((p) => p.start.slice(0, 10) === today)
       .find((p) => new Date(p.start) <= now && now < new Date(p.end));
     result.push({ channel, programme: current || null });
   }
