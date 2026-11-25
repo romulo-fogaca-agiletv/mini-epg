@@ -49,6 +49,7 @@ async function toggleFavorite(channelId, button) {
     });
     button.classList.add('on');
   }
+  pollReminders(); // reminders follow the favourites right away
 }
 
 let timer;
@@ -75,30 +76,85 @@ const clockOffsetMs = (() => {
 })();
 const guideNow = () => new Date(Date.now() + clockOffsetMs);
 
-function renderReminder(r) {
-  const box = document.getElementById('reminders');
-  let el = box.querySelector(`[data-programme-id="${r.programmeId}"]`);
-  if (!el) {
-    el = document.createElement('div');
-    el.className = 'reminder';
-    el.dataset.programmeId = r.programmeId;
-    for (const cls of ['reminder-when', 'reminder-title', 'reminder-channel']) {
-      const line = document.createElement('div');
-      line.className = cls;
-      el.appendChild(line);
-    }
-    box.appendChild(el);
+const SEEN_KEY = `mini-epg:reminders-seen:${USER_ID}`;
+const SEEN_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+// Reminders already shown or dismissed in this browser: programmeId -> start ISO.
+// Survives reloads, so a reminder is never shown twice (FR-004). Old entries are pruned.
+function loadSeen() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(SEEN_KEY)) || {};
+    const cutoff = guideNow().getTime() - SEEN_MAX_AGE_MS;
+    return Object.fromEntries(Object.entries(stored).filter(([, start]) => Date.parse(start) >= cutoff));
+  } catch (err) {
+    return {};
   }
-  // textContent keeps titles from being interpreted as HTML.
-  el.querySelector('.reminder-when').textContent = `começa em ${r.minutesRemaining} min · ${fmt(r.start)}`;
+}
+const seen = loadSeen();
+function markSeen(r) {
+  seen[r.programmeId] = r.start;
+  try { localStorage.setItem(SEEN_KEY, JSON.stringify(seen)); } catch (err) { /* storage unavailable: shown once per page load */ }
+}
+
+const minutesLeft = (startIso) => Math.ceil((Date.parse(startIso) - guideNow().getTime()) / 60000);
+
+function setReminderText(el) {
+  // textContent elsewhere keeps titles from being interpreted as HTML.
+  el.querySelector('.reminder-when').textContent = `começa em ${minutesLeft(el.dataset.start)} min · ${fmt(el.dataset.start)}`;
+}
+
+function createReminder(r) {
+  const el = document.createElement('div');
+  el.className = 'reminder';
+  el.dataset.programmeId = r.programmeId;
+  el.dataset.channelId = r.channelId;
+  el.dataset.start = r.start;
+  for (const cls of ['reminder-when', 'reminder-title', 'reminder-channel']) {
+    const line = document.createElement('div');
+    line.className = cls;
+    el.appendChild(line);
+  }
   el.querySelector('.reminder-title').textContent = r.title;
   el.querySelector('.reminder-channel').textContent = r.channelName;
+  const close = document.createElement('button');
+  close.className = 'reminder-dismiss';
+  close.setAttribute('aria-label', `Dispensar lembrete: ${r.title}`);
+  close.textContent = '×';
+  close.addEventListener('click', () => el.remove());
+  el.appendChild(close);
+  setReminderText(el);
+  return el;
+}
+
+// Reconcile the screen with the server answer: keep what is still due, add what is new and not
+// seen before, drop what is no longer due (programme started, channel no longer a favourite).
+function syncReminders(reminders) {
+  const box = document.getElementById('reminders');
+  const due = new Set(reminders.map((r) => r.programmeId));
+  for (const el of [...box.children]) {
+    if (!due.has(el.dataset.programmeId)) el.remove();
+  }
+  for (const r of reminders) {
+    const visible = box.querySelector(`[data-programme-id="${r.programmeId}"]`);
+    if (visible) continue;
+    if (seen[r.programmeId]) continue;
+    markSeen(r);
+    box.appendChild(createReminder(r));
+  }
+}
+
+// Every second: refresh the minutes left and drop reminders whose programme has started.
+function tickReminders() {
+  for (const el of document.querySelectorAll('#reminders .reminder')) {
+    if (Date.parse(el.dataset.start) <= guideNow().getTime()) el.remove();
+    else setReminderText(el);
+  }
 }
 
 async function pollReminders() {
   try {
     const data = await api(`/users/${USER_ID}/reminders?at=${encodeURIComponent(guideNow().toISOString())}`);
-    for (const r of data.reminders || []) renderReminder(r);
+    syncReminders(data.reminders || []);
   } catch (err) {
     console.error('reminders poll failed', err);
   }
@@ -107,3 +163,4 @@ async function pollReminders() {
 loadChannels();
 pollReminders();
 setInterval(pollReminders, REMINDER_POLL_MS);
+setInterval(tickReminders, 1000);

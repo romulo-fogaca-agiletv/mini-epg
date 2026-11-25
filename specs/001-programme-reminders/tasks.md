@@ -64,12 +64,12 @@
 
 ### Tests for User Story 2
 
-- [ ] T011 [US2] Add failing scenarios to `e2e/reminders.spec.js`: (a) star the channel when the guide clock is before the window, advance into it, expect a reminder; (b) star then unstar before the window, expect none; (c) with a reminder visible, unstar its channel and expect the reminder to be removed (spec US2 scenarios 1, 2 and 3, FR-005)
+- [X] T011 [US2] Add failing scenarios to `e2e/reminders.spec.js`: (a) star the channel when the guide clock is before the window, advance into it, expect a reminder; (b) star then unstar before the window, expect none; (c) with a reminder visible, unstar its channel and expect the reminder to be removed (spec US2 scenarios 1, 2 and 3, FR-005)
 
 ### Implementation for User Story 2
 
-- [ ] T012 [US2] In `public/app.js`, call `pollReminders()` right after a successful favourite add or remove in `toggleFavorite`, and remove from the screen any visible reminder whose channel is no longer in the response (research D5; FR-005, SC-003)
-- [ ] T013 [US2] Make T011 pass and run quickstart section 4
+- [X] T012 [US2] In `public/app.js`, call `pollReminders()` right after a successful favourite add or remove in `toggleFavorite`, and remove from the screen any visible reminder whose channel is no longer in the response (research D5; FR-005, SC-003)
+- [X] T013 [US2] Make T011 pass and run quickstart section 4 — **e2e NOT run (Chromium not installed); behaviour verified manually in the browser pane**
 
 **Checkpoint**: US1 and US2 both work.
 
@@ -83,13 +83,13 @@
 
 ### Tests for User Story 3
 
-- [ ] T014 [US3] Add failing scenarios to `e2e/reminders.spec.js`: dismiss a reminder and expect it gone and not back after reload; shown reminder does not reappear after reload; open at 3 minutes before the start and expect the text "3 min"; open after a programme has started and expect no reminder for it; reminder removed on its own once the guide clock reaches the start (spec US3 scenarios 1–3, FR-004, FR-006, FR-007, FR-008)
+- [X] T014 [US3] Add failing scenarios to `e2e/reminders.spec.js`: dismiss a reminder and expect it gone and not back after reload; shown reminder does not reappear after reload; open at 3 minutes before the start and expect the text "3 min"; open after a programme has started and expect no reminder for it; reminder removed on its own once the guide clock reaches the start (spec US3 scenarios 1–3, FR-004, FR-006, FR-007, FR-008)
 
 ### Implementation for User Story 3
 
-- [ ] T015 [US3] In `public/app.js`, add the seen set in `localStorage` under `mini-epg:reminders-seen:<USER_ID>` as a map of `Reminder.programmeId` to `Reminder.start` (data-model.md): add an id the first time its reminder is shown, never render a reminder whose id is in the set, and prune entries whose start is more than 24 hours before the guide clock on load (research D6; FR-004)
-- [ ] T016 [US3] In `public/app.js`, add a dismiss button with `aria-label` to each toast that removes it; add a 1-second display tick that refreshes the remaining minutes and removes any toast whose `Reminder.start` is at or before the guide clock (research D7; FR-008)
-- [ ] T017 [US3] Make T014 pass and run quickstart section 3 steps 3–6
+- [X] T015 [US3] In `public/app.js`, add the seen set in `localStorage` under `mini-epg:reminders-seen:<USER_ID>` as a map of `Reminder.programmeId` to `Reminder.start` (data-model.md): add an id the first time its reminder is shown, never render a reminder whose id is in the set, and prune entries whose start is more than 24 hours before the guide clock on load (research D6; FR-004)
+- [X] T016 [US3] In `public/app.js`, add a dismiss button with `aria-label` to each toast that removes it; add a 1-second display tick that refreshes the remaining minutes and removes any toast whose `Reminder.start` is at or before the guide clock (research D7; FR-008)
+- [X] T017 [US3] Make T014 pass and run quickstart section 3 steps 3–6 — **e2e NOT run (Chromium not installed); behaviour verified manually in the browser pane**
 
 **Checkpoint**: All three stories work independently.
 

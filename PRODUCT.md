@@ -16,7 +16,8 @@ O que o código não confirma está em [Perguntas abertas](#perguntas-abertas).
    - Campo vazio limpa o resultado.
 5. **Lembretes.** Com o guia aberto, 10 minutos antes de um programa começar num canal favorito aparece um aviso no canto da tela com o título, o canal e o horário (ex.: "começa em 10 min · 20:00").
    - O guia consulta a API a cada 15 s. Abrir o guia com `?now=<ISO>` (ex.: `/?now=2026-10-20T19:50:00-03:00`) fixa o "agora" para testes e demonstração.
-   - **Ainda não feito (MVP):** dispensar o aviso, lembrar entre recarregamentos o que já foi mostrado, sumir quando o programa começa e reagir na hora ao favoritar. Hoje o aviso fica até recarregar a página. Ver `specs/001-programme-reminders/tasks.md` (T011 a T017).
+   - O aviso tem botão de dispensar e some sozinho quando o programa começa. Cada lembrete aparece uma vez só: o navegador (`localStorage`) lembra o que já foi mostrado ou dispensado, mesmo após recarregar. Favoritar ou desfavoritar vale na hora (o guia consulta a API logo em seguida).
+   - Se o guia abrir com o programa a menos de 10 minutos, o aviso mostra os minutos reais que faltam. Programa que já começou não gera aviso.
    - Só vale com o guia aberto: não há notificação com o navegador fechado.
 
 ### API (sem interface no guia)

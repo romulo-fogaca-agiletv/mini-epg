@@ -22,6 +22,9 @@
     #results { padding: 0 24px; color: #aaa; }
     #reminders { position: fixed; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 8px; max-width: 320px; z-index: 10; }
     .reminder { background: #1a1a2e; border: 1px solid #00c7b2; border-left-width: 4px; border-radius: 6px; padding: 10px 12px; box-shadow: 0 4px 12px rgba(0,0,0,.4); }
+    .reminder { position: relative; }
+    .reminder .reminder-dismiss { position: absolute; top: 4px; right: 6px; background: none; border: none; color: #888; font-size: 16px; cursor: pointer; }
+    .reminder .reminder-dismiss:hover { color: #eee; }
     .reminder .reminder-when { color: #00c7b2; font-size: 12px; }
     .reminder .reminder-title { font-weight: 600; }
     .reminder .reminder-channel { color: #aaa; font-size: 13px; }
