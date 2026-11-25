@@ -28,16 +28,17 @@ Há dois processos independentes, que só se comunicam pelo arquivo `data/schedu
 | `src/epg/store.js` | Carrega `channels.json` e `schedule.json` uma única vez, com `require`, na inicialização. Expõe `getChannels()` (ordenados por número), `getChannel(id)` e `getProgrammes()`. É a **única porta de acesso aos dados de guia**. | `data/*.json` | Ser chamado com escrita (os dados são só leitura em runtime). |
 | `src/epg/schedule.js` | A grade de um canal num dia civil de São Paulo (03:00Z a 03:00Z). | `store` | |
 | `src/epg/nowPlaying.js` | O programa no ar em cada canal num instante; exporta também `saoPauloDate()`, que hoje não é usado. | `store` | |
+| `src/epg/reminders.js` | Os programas que começam nos próximos 10 minutos nos canais informados (`upcomingReminders`). Módulo puro: compara instantes `Date`, devolve `minutesRemaining` e a classificação, sem filtrar por ela. | `store` | |
 | `src/epg/search.js` | Substring em nome de canal e título de programa; no máximo 20 programas. | `store` | |
 | `src/epg/ratings.js` | A escala ClassInd, a idade mínima e os textos oficiais. Módulo puro, **ainda não importado por ninguém**. | nada | |
 | `src/users/favorites.js` | Favoritos por `userId` num `Map` em memória, com limite de 50. `_reset()` existe só para testes. | nada | Validar se o canal existe; isso fica em `app.js`. |
 | `src/legacy/importer.js` | Lê o feed (uma linha por `<programme>`), limpa títulos, resolve sobreposições, calcula o `score` com boost de prime-time e grava o JSON. Roda pela linha de comando (`npm run import`, ou o cron em produção). | `fs`, `data/channels.json` | **Ser alterado** (regras não documentadas). Não é importado pela API. |
-| `public/` | O guia web em JS puro, sem build: lista de canais, grade de `2026-10-20` fixa, favoritos de `demo-user` e busca. | só a API HTTP | |
+| `public/` | O guia web em JS puro, sem build: lista de canais, grade de `2026-10-20` fixa, favoritos de `demo-user`, busca e avisos de lembrete (consulta `/users/:userId/reminders` a cada 15 s; `?now=<ISO>` na URL fixa o "agora" do guia). | só a API HTTP | |
 
 ### Regras que atravessam módulos
 - **Tempo:** todos os horários são strings ISO com offset fixo `-03:00`, gravadas assim pelo importer. As comparações são feitas como instantes `Date`, e não há biblioteca de fuso horário. O guia web só recorta `HH:MM` da string.
 - **Validação de favoritos:** a checagem de canal existente fica em `app.js`, via `store.getChannel`. O limite e a deduplicação ficam em `favorites.js`.
-- **Persistência:** não há banco nem cache. Programação e canais vêm de arquivo, carregado só na inicialização. Um novo `schedule.json` só entra em vigor quando o servidor reinicia. Os favoritos se perdem ao reiniciar.
+- **Persistência:** não há banco nem cache. Programação e canais vêm de arquivo, carregado só na inicialização. Um novo `schedule.json` só entra em vigor quando o servidor reinicia. Os favoritos se perdem ao reiniciar. Os lembretes não são armazenados: são calculados a cada consulta a partir dos favoritos e da programação.
 - **Dependências de runtime:** apenas `express` (`package.json:16-18`).
 
 ## Contradições com `docs/architecture-old.md`

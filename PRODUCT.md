@@ -14,6 +14,10 @@ O que o código não confirma está em [Perguntas abertas](#perguntas-abertas).
 4. **Buscar.** Digitar no campo de busca dispara a consulta 250 ms depois da última tecla.
    - Mostra a contagem de canais e de programas encontrados e até 8 nomes.
    - Campo vazio limpa o resultado.
+5. **Lembretes.** Com o guia aberto, 10 minutos antes de um programa começar num canal favorito aparece um aviso no canto da tela com o título, o canal e o horário (ex.: "começa em 10 min · 20:00").
+   - O guia consulta a API a cada 15 s. Abrir o guia com `?now=<ISO>` (ex.: `/?now=2026-10-20T19:50:00-03:00`) fixa o "agora" para testes e demonstração.
+   - **Ainda não feito (MVP):** dispensar o aviso, lembrar entre recarregamentos o que já foi mostrado, sumir quando o programa começa e reagir na hora ao favoritar. Hoje o aviso fica até recarregar a página. Ver `specs/001-programme-reminders/tasks.md` (T011 a T017).
+   - Só vale com o guia aberto: não há notificação com o navegador fechado.
 
 ### API (sem interface no guia)
 - **Programação do dia:** `GET /channels/:id/schedule?date=YYYY-MM-DD`.
@@ -27,6 +31,9 @@ O que o código não confirma está em [Perguntas abertas](#perguntas-abertas).
   - Usa substring simples, que diferencia maiúsculas e acentos.
   - Retorna no máximo 20 programas e não limita os canais.
 - **Favoritos:** `GET`, `POST` e `DELETE` em `/users/:userId/favorites`. As regras estão abaixo.
+- **Lembretes:** `GET /users/:userId/reminders?at=<ISO>` lista os programas dos canais favoritos do usuário que começam em até 10 minutos de `at` (padrão: agora), com `minutesRemaining`. Programa que já começou não entra. `at` inválido retorna 400.
+  - Cada lembrete traz a classificação, mas **não há filtro por classificação**: o bloqueio do `18` no perfil infantil vale quando esse perfil existir.
+  - Contrato completo em `specs/001-programme-reminders/contracts/reminders-api.md`.
 
 ## Classificação indicativa (ClassInd)
 

@@ -97,7 +97,7 @@
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T018 [P] Update `ARCHITECTURE.md` (module table: `src/epg/reminders.js`; public guide behaviour; persistence note about the browser-side seen set) and `PRODUCT.md` (new user flow and the `GET /users/:userId/reminders` API entry; note that reminders do not filter by rating yet, FR-010)
+- [X] T018 [P] Update `ARCHITECTURE.md` (module table: `src/epg/reminders.js`; public guide behaviour; persistence note about the browser-side seen set) and `PRODUCT.md` (new user flow and the `GET /users/:userId/reminders` API entry; note that reminders do not filter by rating yet, FR-010)
 - [ ] T019 Run `npm test` and `npm run test:e2e` and confirm everything is green with no existing test changed
 - [ ] T020 Run `git status` and confirm `src/legacy/importer.js` and `data/schedule.json` are unmodified, then walk through every section of [quickstart.md](quickstart.md)
 
