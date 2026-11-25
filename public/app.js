@@ -64,4 +64,46 @@ document.getElementById('search').addEventListener('input', (e) => {
   }, 250);
 });
 
+// --- Programme reminders -------------------------------------------------
+const REMINDER_POLL_MS = 15000;
+
+// Guide clock: the real time, or the instant in ?now= advancing with real elapsed time.
+const clockOffsetMs = (() => {
+  const override = new URLSearchParams(location.search).get('now');
+  const ms = override ? Date.parse(override) : NaN;
+  return Number.isNaN(ms) ? 0 : ms - Date.now();
+})();
+const guideNow = () => new Date(Date.now() + clockOffsetMs);
+
+function renderReminder(r) {
+  const box = document.getElementById('reminders');
+  let el = box.querySelector(`[data-programme-id="${r.programmeId}"]`);
+  if (!el) {
+    el = document.createElement('div');
+    el.className = 'reminder';
+    el.dataset.programmeId = r.programmeId;
+    for (const cls of ['reminder-when', 'reminder-title', 'reminder-channel']) {
+      const line = document.createElement('div');
+      line.className = cls;
+      el.appendChild(line);
+    }
+    box.appendChild(el);
+  }
+  // textContent keeps titles from being interpreted as HTML.
+  el.querySelector('.reminder-when').textContent = `começa em ${r.minutesRemaining} min · ${fmt(r.start)}`;
+  el.querySelector('.reminder-title').textContent = r.title;
+  el.querySelector('.reminder-channel').textContent = r.channelName;
+}
+
+async function pollReminders() {
+  try {
+    const data = await api(`/users/${USER_ID}/reminders?at=${encodeURIComponent(guideNow().toISOString())}`);
+    for (const r of data.reminders || []) renderReminder(r);
+  } catch (err) {
+    console.error('reminders poll failed', err);
+  }
+}
+
 loadChannels();
+pollReminders();
+setInterval(pollReminders, REMINDER_POLL_MS);

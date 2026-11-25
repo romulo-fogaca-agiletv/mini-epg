@@ -20,6 +20,11 @@
     .prog .time { color: #00c7b2; width: 110px; display: inline-block; }
     .rating { font-size: 11px; padding: 1px 6px; border-radius: 4px; background: #333; margin-left: 8px; }
     #results { padding: 0 24px; color: #aaa; }
+    #reminders { position: fixed; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 8px; max-width: 320px; z-index: 10; }
+    .reminder { background: #1a1a2e; border: 1px solid #00c7b2; border-left-width: 4px; border-radius: 6px; padding: 10px 12px; box-shadow: 0 4px 12px rgba(0,0,0,.4); }
+    .reminder .reminder-when { color: #00c7b2; font-size: 12px; }
+    .reminder .reminder-title { font-weight: 600; }
+    .reminder .reminder-channel { color: #aaa; font-size: 13px; }
   </style>
 </head>
 <body>
@@ -32,6 +37,7 @@
     <ul id="channels" data-testid="channel-list"></ul>
     <section id="grid" data-testid="schedule-grid"><p>Selecione um canal.</p></section>
   </main>
+  <div id="reminders" role="status" aria-live="polite" data-testid="reminders"></div>
   <script src="app.js"></script>
 </body>
 </html>

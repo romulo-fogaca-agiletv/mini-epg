@@ -5,6 +5,7 @@ const store = require('./epg/store');
 const { search } = require('./epg/search');
 const { getSchedule } = require('./epg/schedule');
 const { nowPlaying } = require('./epg/nowPlaying');
+const { upcomingReminders, LEAD_MINUTES } = require('./epg/reminders');
 const favorites = require('./users/favorites');
 
 const app = express();
@@ -47,6 +48,15 @@ app.post('/users/:userId/favorites', (req, res) => {
 
 app.delete('/users/:userId/favorites/:channelId', (req, res) => {
   res.json(favorites.remove(req.params.userId, req.params.channelId));
+});
+
+app.get('/users/:userId/reminders', (req, res) => {
+  const at = req.query.at ? new Date(req.query.at) : new Date();
+  if (Number.isNaN(at.getTime())) {
+    return res.status(400).json({ error: "Invalid 'at' (expected ISO 8601 date-time)" });
+  }
+  const reminders = upcomingReminders(favorites.list(req.params.userId), at);
+  res.json({ at: at.toISOString(), leadMinutes: LEAD_MINUTES, reminders });
 });
 
 // eslint-disable-next-line no-unused-vars
